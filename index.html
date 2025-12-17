@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таблица Менделеева с поиском и расшифровкой</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+        }
+        
+        h1 {
+            color: #4cc9f0;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+        }
+        
+        .subtitle {
+            color: #a0e7ff;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        /* Поиск */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+        
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            padding-left: 50px;
+            border-radius: 10px;
+            border: 2px solid #4cc9f0;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 15px rgba(76, 201, 240, 0.3);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #4cc9f0;
+            font-size: 1.2rem;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(30, 60, 114, 0.95);
+            border-radius: 10px;
+            margin-top: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            border: 1px solid #4a69bd;
+        }
+        
+        .search-result-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .search-result-item:hover {
+            background: rgba(76, 201, 240, 0.2);
+        }
+        
+        .result-symbol {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #ffdd59;
+            min-width: 40px;
+        }
+        
+        .result-name {
+            flex-grow: 1;
+        }
+        
+        .result-number {
+            color: #a0e7ff;
+            font-size: 0.9rem;
+        }
+        
+        /* Таблица */
+        .table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 40px;
+            overflow-x: auto;
+        }
+        
+        .periodic-table {
+            display: grid;
+            grid-template-columns: 60px repeat(18, 1fr);
+            gap: 4px;
+            min-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        /* Заголовки групп */
+        .group-header {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffdd59;
+            background: rgba(0, 40, 85, 0.8);
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+        
+        /* Номера периодов */
+        .period-number {
+            width: 60px;
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #00cec9;
+            background: rgba(0, 60, 40, 0.7);
+            border-radius: 8px;
+        }
+        
+        /* Элементы */
+        .element {
+            width: 85px;
+            height: 85px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+        
+        .element:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+        
+        .element.highlighted {
+            animation: pulse 1.5s infinite;
+            border: 3px solid #ffdd59 !important;
+            box-shadow: 0 0 20px rgba(255, 221, 89, 0.5);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .element-symbol {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .element-name {
+            font-size: 0.7rem;
+            margin-bottom: 3px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .element-number {
+            font-size: 0.8rem;
+            position: absolute;
+            top: 3px;
+            left: 5px;
+            opacity: 0.9;
+        }
+        
+        .element-mass {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+        
+        /* Цвета элементов */
+        .alkali-metal { background: linear-gradient(135deg, #ff7675, #fd79a8); border-color: #ff7675; }
+        .alkaline-earth { background: linear-gradient(135deg, #74b9ff, #0984e3); border-color: #74b9ff; }
+        .transition-metal { background: linear-gradient(135deg, #55efc4, #00b894); border-color: #55efc4; }
+        .basic-metal { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); border-color: #ffeaa7; }
+        .metalloid { background: linear-gradient(135deg, #a29bfe, #6c5ce7); border-color: #a29bfe; }
+        .nonmetal { background: linear-gradient(135deg, #fd79a8, #e84393); border-color: #fd79a8; }
+        .halogen { background: linear-gradient(135deg, #81ecec, #00cec9); border-color: #81ecec; }
+        .noble-gas { background: linear-gradient(135deg, #dfe6e9, #b2bec3); border-color: #dfe6e9; }
+        
+        /* Пустые ячейки */
+        .empty-cell {
+            width: 85px;
+            height: 85px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+        }
+        
+        /* Расшифровка под таблицей */
+        .legend-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .legend-title {
+            color: #4cc9f0;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .legend-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-title {
+            color: #ffdd59;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            font-size: 1.5rem;
+        }
+        
+        .legend-item {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        
+        .legend-label {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        .legend-description {
+            color: #e0f7ff;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+        
+        /* Пример элемента */
+        .example-element {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .example-symbol {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .example-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .example-detail {
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .detail-label {
+            font-size: 0.8rem;
+            color: #a0e7ff;
+            margin-bottom: 3px;
+        }
+        
+        .detail-value {
+            font-weight: bold;
+            color: white;
+        }
+        
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            width: 90%;
+            max-width: 800px;
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+            animation: modalAppear 0.3s ease;
+        }
+        
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            background: #ff3742;
+            transform: rotate(90deg);
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #4a69bd;
+        }
+        
+        .modal-symbol {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffdd59;
+            margin-right: 20px;
+        }
+        
+        .modal-name {
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .modal-body {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .discoverer-photo {
+            flex: 0 0 200px;
+        }
+        
+        .discoverer-photo img {
+            width: 100%;
+            border-radius: 10px;
+            border: 3px solid #4a69bd;
+        }
+        
+        .discoverer-info {
+            flex: 1;
+        }
+        
+        .discoverer-name {
+            font-size: 1.8rem;
+            color: #00cec9;
+            margin-bottom: 10px;
+        }
+        
+        .discovery-info {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+        
+        .element-properties {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .property-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .property-label {
+            color: #a0e7ff;
+        }
+        
+        .property-value {
+            color: #ffdd59;
+            font-weight: bold;
+        }
+        
+        /* Кнопки управления */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: rgba(76, 201, 240, 0.2);
+            color: white;
+            border: 1px solid #4cc9f0;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            background: rgba(76, 201, 240, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #88aadd;
+            font-size: 0.9rem;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 1200px) {
+            .periodic-table {
+                min-width: 800px;
+            }
+            
+            .element {
+                width: 75px;
+                height: 75px;
+            }
+            
+            .element-symbol {
+                font-size: 1.3rem;
+            }
+            
+            .element-name {
+                font-size: 0.65rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .element {
+                width: 65px;
+                height: 65px;
+            }
+            
+            .element-symbol {
+                font-size: 1.2rem;
+            }
+            
+            .element-name {
+                font-size: 0.6rem;
+                height: 20px;
+            }
+            
+            .periodic-table {
+                min-width: 700px;
+                grid-template-columns: 50px repeat(18, 1fr);
+            }
+            
+            .period-number {
+                width: 50px;
+                height: 65px;
+            }
+            
+            .modal-body {
+                flex-direction: column;
+            }
+            
+            .discoverer-photo {
+                flex: none;
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+            }
+            
+            .legend-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .search-container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-atom"></i> Таблица Менделеева с поиском</h1>
+            <p class="subtitle">Интерактивная периодическая таблица химических элементов • Поиск по символам и названиям</p>
+            
+            <div class="controls">
+                <button class="control-btn" onclick="highlightAll('alkali-metal')">
+                    <i class="fas fa-fire"></i> Щелочные металлы
+                </button>
+                <button class="control-btn" onclick="highlightAll('halogen')">
+                    <i class="fas fa-flask"></i> Галогены
+                </button>
+                <button class="control-btn" onclick="highlightAll('noble-gas')">
+                    <i class="fas fa-wind"></i> Благородные газы
+                </button>
+                <button class="control-btn" onclick="resetHighlights()">
+                    <i class="fas fa-times"></i> Сбросить выделение
+                </button>
+            </div>
+        </header>
+        
+        <!-- Поиск элементов -->
+        <div class="search-container">
+            <div class="search-box">
+                <div class="search-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <input type="text" 
+                       class="search-input" 
+                       placeholder="Поиск элемента по символу или названию (например: Fe, Железо, Золото)"
+                       id="searchInput">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+        </div>
+        
+        <!-- Таблица Менделеева -->
+        <div class="table-container">
+            <div class="periodic-table" id="periodicTable">
+                <!-- Таблица будет сгенерирована JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Расшифровка обозначений -->
+        <div class="legend-container">
+            <h2 class="legend-title"><i class="fas fa-key"></i> Расшифровка обозначений в таблице Менделеева</h2>
+            
+            <div class="legend-grid">
+                <!-- Карточка 1: Основные обозначения -->
+                <div class="legend-card">
+                    <div class="card-title">
+                        <i class="fas fa-tag"></i> Обозначения элементов
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #4cc9f0;">
+                        <div class="legend-label">Символ элемента (например: At)</div>
+                        <div class="legend-description">
+                            Международное обозначение химического элемента (1-2 буквы латиницей). 
+                            Первая буква всегда заглавная, вторая — строчная.
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #ffdd59;">
+                        <div class="legend-label">Атомный номер (например: 85)</div>
+                        <div class="legend-description">
+                            Количество протонов в атомном ядре. Определяет химические свойства элемента.
+                            Нумерация от 1 (водород) и увеличивается слева направо, сверху вниз.
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #00cec9;">
+                        <div class="legend-label">Относительная атомная масса (например: [210])</div>
+                        <div class="legend-description">
+                            Средняя масса атома с учётом природной распространённости изотопов.
+                            Числа в квадратных скобках указывают на массовое число наиболее устойчивого изотопа.
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #fd79a8;">
+                        <div class="legend-label">Название элемента (например: Астат)</div>
+                        <div class="legend-description">
+                            Полное название химического элемента на русском языке.
+                            В некоторых таблицах также указывается латинское название.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 2: Пример элемента -->
+                <div class="legend-card">
+                    <div class="card-title">
+                        <i class="fas fa-vial"></i> Пример: элемент Астат (At)
+                    </div>
+                    
+                    <div class="example-element">
+                        <div class="example-symbol">At</div>
+                        <div class="example-details">
+                            <div class="example-detail">
+                                <div class="detail-label">Номер</div>
+                                <div class="detail-value">85</div>
+                            </div>
+                            <div class="example-detail">
+                                <div class="detail-label">Масса</div>
+                                <div class="detail-value">[210]</div>
+                            </div>
+                            <div class="example-detail">
+                                <div class="detail-label">Название</div>
+                                <div class="detail-value">Астат</div>
+                            </div>
+                            <div class="example-detail">
+                                <div class="detail-label">Тип</div>
+                                <div class="detail-value">Полуметалл</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #a29bfe; margin-top: 15px;">
+                        <div class="legend-label">Дополнительные обозначения:</div>
+                        <div class="legend-description">
+                            • <strong>Полуметалл</strong> — элемент с промежуточными свойствами между металлами и неметаллами<br>
+                            • <strong>Радиоактивен</strong> — все изотопы нестабильны и подвержены распаду<br>
+                            • <strong>-1</strong> — характерная степень окисления
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 3: Классификация -->
+                <div class="legend-card">
+                    <div class="card-title">
+                        <i class="fas fa-sitemap"></i> Классификация элементов
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #ff7675;">
+                        <div class="legend-label">s-элементы</div>
+                        <div class="legend-description">
+                            Последний электрон на s-орбитали. Щелочные и щёлочноземельные металлы (группы 1-2).
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #74b9ff;">
+                        <div class="legend-label">p-элементы</div>
+                        <div class="legend-description">
+                            Последний электрон на p-орбитали. Неметаллы, полуметаллы, благородные газы (группы 13-18).
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #55efc4;">
+                        <div class="legend-label">d-элементы</div>
+                        <div class="legend-description">
+                            Последний электрон на d-орбитали. Переходные металлы (группы 3-12).
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #a29bfe;">
+                        <div class="legend-label">f-элементы</div>
+                        <div class="legend-description">
+                            Последний электрон на f-орбитали. Лантаноиды и актиноиды (редкоземельные элементы).
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Карточка 4: Цветовая схема -->
+                <div class="legend-card">
+                    <div class="card-title">
+                        <i class="fas fa-palette"></i> Цветовая схема таблицы
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #ff7675;">
+                        <div class="legend-label" style="color: #ff7675;">Щелочные металлы</div>
+                        <div class="legend-description">
+                            Li, Na, K, Rb, Cs, Fr. Мягкие, очень реакционноспособные металлы.
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #74b9ff;">
+                        <div class="legend-label" style="color: #74b9ff;">Щёлочноземельные металлы</div>
+                        <div class="legend-description">
+                            Be, Mg, Ca, Sr, Ba, Ra. Реакционноспособны, но менее активны, чем щелочные металлы.
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #a29bfe;">
+                        <div class="legend-label" style="color: #a29bfe;">Полуметаллы</div>
+                        <div class="legend-description">
+                            B, Si, Ge, As, Sb, Te, Po, At. Обладают свойствами как металлов, так и неметаллов.
+                        </div>
+                    </div>
+                    
+                    <div class="legend-item" style="border-left-color: #81ecec;">
+                        <div class="legend-label" style="color: #81ecec;">Галогены</div>
+                        <div class="legend-description">
+                            F, Cl, Br, I, At. Очень реакционноспособные неметаллы, образуют соли с металлами.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Интерактивная таблица Менделеева с поиском и расшифровкой • 53 элемента • 4 периода • 8 групп</p>
+            <p>Используйте поиск для быстрого нахождения элементов или нажмите на элемент для подробной информации</p>
+        </footer>
+    </div>
+    
+    <!-- Модальное окно с информацией об элементе -->
+    <div class="modal" id="elementModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <div class="modal-header">
+                <div class="modal-symbol" id="modalSymbol">H</div>
+                <div class="modal-name" id="modalName">Водород</div>
+            </div>
+            
+            <div class="element-properties">
+                <div class="property-item">
+                    <span class="property-label">Атомный номер:</span>
+                    <span class="property-value" id="modalNumber">1</span>
+                </div>
+                <div class="property-item">
+                    <span class="property-label">Атомная масса:</span>
+                    <span class="property-value" id="modalMass">1.008</span>
+                </div>
+                <div class="property-item">
+                    <span class="property-label">Группа:</span>
+                    <span class="property-value" id="modalGroup">I</span>
+                </div>
+                <div class="property-item">
+                    <span class="property-label">Период:</span>
+                    <span class="property-value" id="modalPeriod">1</span>
+                </div>
+                <div class="property-item">
+                    <span class="property-label">Тип элемента:</span>
+                    <span class="property-value" id="modalType">Неметалл</span>
+                </div>
+                <div class="property-item">
+                    <span class="property-label">Электронный блок:</span>
+                    <span class="property-value" id="modalBlock">s-элемент</span>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="discoverer-info">
+                    <h3 class="discoverer-name" id="discovererName">Генри Кавендиш</h3>
+                    <div style="color: #ffdd59; margin-bottom: 15px; font-size: 1.2rem;" id="discoveryYear">
+                        Год открытия: 1766
+                    </div>
+                    <p class="discovery-info" id="discoveryInfo">
+                        Английский физик и химик, который впервые выделил водород в чистом виде и описал его свойства.
+                    </p>
+                </div>
+                
+                <div class="discoverer-photo">
+                    <img id="discovererImage" 
+                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Henry_Cavendish_portrait.jpg/400px-Henry_Cavendish_portrait.jpg" 
+                         alt="Первооткрыватель">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Данные об элементах (53 элемента)
+        const elementsData = [
+            // Период 1
+            { number: 1, symbol: 'H', name: 'Водород', mass: '1.008', group: 1, period: 1, type: 'nonmetal', block: 's' },
+            { number: 2, symbol: 'He', name: 'Гелий', mass: '4.0026', group: 18, period: 1, type: 'noble-gas', block: 's' },
+            
+            // Период 2
+            { number: 3, symbol: 'Li', name: 'Литий', mass: '6.94', group: 1, period: 2, type: 'alkali-metal', block: 's' },
+            { number: 4, symbol: 'Be', name: 'Бериллий', mass: '9.0122', group: 2, period: 2, type: 'alkaline-earth', block: 's' },
+            { number: 5, symbol: 'B', name: 'Бор', mass: '10.81', group: 13, period: 2, type: 'metalloid', block: 'p' },
+            { number: 6, symbol: 'C', name: 'Углерод', mass: '12.011', group: 14, period: 2, type: 'nonmetal', block: 'p' },
+            { number: 7, symbol: 'N', name: 'Азот', mass: '14.007', group: 15, period: 2, type: 'nonmetal', block: 'p' },
+            { number: 8, symbol: 'O', name: 'Кислород', mass: '15.999', group: 16, period: 2, type: 'nonmetal', block: 'p' },
+            { number: 9, symbol: 'F', name: 'Фтор', mass: '18.998', group: 17, period: 2, type: 'halogen', block: 'p' },
+            { number: 10, symbol: 'Ne', name: 'Неон', mass: '20.180', group: 18, period: 2, type: 'noble-gas', block: 'p' },
+            
+            // Период 3
+            { number: 11, symbol: 'Na', name: 'Натрий', mass: '22.990', group: 1, period: 3, type: 'alkali-metal', block: 's' },
+            { number: 12, symbol: 'Mg', name: 'Магний', mass: '24.305', group: 2, period: 3, type: 'alkaline-earth', block: 's' },
+            { number: 13, symbol: 'Al', name: 'Алюминий', mass: '26.982', group: 13, period: 3, type: 'basic-metal', block: 'p' },
+            { number: 14, symbol: 'Si', name: 'Кремний', mass: '28.085', group: 14, period: 3, type: 'metalloid', block: 'p' },
+            { number: 15, symbol: 'P', name: 'Фосфор', mass: '30.974', group: 15, period: 3, type: 'nonmetal', block: 'p' },
+            { number: 16, symbol: 'S', name: 'Сера', mass: '32.06', group: 16, period: 3, type: 'nonmetal', block: 'p' },
+            { number: 17, symbol: 'Cl', name: 'Хлор', mass: '35.45', group: 17, period: 3, type: 'halogen', block: 'p' },
+            { number: 18, symbol: 'Ar', name: 'Аргон', mass: '39.948', group: 18, period: 3, type: 'noble-gas', block: 'p' },
+            
+            // Период 4
+            { number: 19, symbol: 'K', name: 'Калий', mass: '39.098', group: 1, period: 4, type: 'alkali-metal', block: 's' },
+            { number: 20, symbol: 'Ca', name: 'Кальций', mass: '40.078', group: 2, period: 4, type: 'alkaline-earth', block: 's' },
+            { number: 21, symbol: 'Sc', name: 'Скандий', mass: '44.956', group: 3, period: 4, type: 'transition-metal', block: 'd' },
+            { number: 22, symbol: 'Ti', name: 'Титан', mass: '47.867', group: 4, period: 4, type: 'transition-metal', block: 'd' },
+            { number: 23, symbol: 'V', name: 'Ванадий', mass: '50.942', group: 5, period: 4, type: 'transition-metal', block: 'd' },
+            { number: 24, symbol: 'Cr', name: 'Хром', mass: '51.996', group: 6, period: 4, type: 'transition-metal', block: 'd' },
+            { number: 25, symbol: 'Mn', name: 'Марганец', mass: '54.938', group: 7, period: 4, type: 'transition-metal', block: 'd' },
+            { number: 26, symbol: 'Fe', name: 'Железо', mass: '55.845', group: 8, period: 4, type: 'transition-metal', block: 'd' },
+            { number: 27, symbol: 'Co', name: 'Кобальт', mass: '58.933', group: 9, period: 4, type: 'transition-metal', block: 'd' },
+            { number: 28, symbol: 'Ni', name: 'Никель', mass: '58.693', group: 10, period: 4, type: 'transition-metal', block: 'd' },
+            { number: 29, symbol: 'Cu', name: 'Медь', mass: '63.546', group: 11, period: 4, type: 'transition-metal', block: 'd' },
+            { number: 30, symbol: 'Zn', name: 'Цинк', mass: '65.38', group: 12, period: 4, type: 'transition-metal', block: 'd' },
+            { number: 31, symbol: 'Ga', name: 'Галлий', mass: '69.723', group: 13, period: 4, type: 'basic-metal', block: 'p' },
+            { number: 32, symbol: 'Ge', name: 'Германий', mass: '72.630', group: 14, period: 4, type: 'metalloid', block: 'p' },
+            { number: 33, symbol: 'As', name: 'Мышьяк', mass: '74.922', group: 15, period: 4, type: 'metalloid', block: 'p' },
+            { number: 34, symbol: 'Se', name: 'Селен', mass: '78.971', group: 16, period: 4, type: 'nonmetal', block: 'p' },
+            { number: 35, symbol: 'Br', name: 'Бром', mass: '79.904', group: 17, period: 4, type: 'halogen', block: 'p' },
+            { number: 36, symbol: 'Kr', name: 'Криптон', mass: '83.798', group: 18, period: 4, type: 'noble-gas', block: 'p' },
+            
+            // Период 5 (дополнительные элементы для 53 штук)
+            { number: 37, symbol: 'Rb', name: 'Рубидий', mass: '85.468', group: 1, period: 5, type: 'alkali-metal', block: 's' },
+            { number: 38, symbol: 'Sr', name: 'Стронций', mass: '87.62', group: 2, period: 5, type: 'alkaline-earth', block: 's' },
+            { number: 39, symbol: 'Y', name: 'Иттрий', mass: '88.906', group: 3, period: 5, type: 'transition-metal', block: 'd' },
+            { number: 40, symbol: 'Zr', name: 'Цирконий', mass: '91.224', group: 4, period: 5, type: 'transition-metal', block: 'd' },
+            { number: 41, symbol: 'Nb', name: 'Ниобий', mass: '92.906', group: 5, period: 5, type: 'transition-metal', block: 'd' },
+            { number: 42, symbol: 'Mo', name: 'Молибден', mass: '95.95', group: 6, period: 5, type: 'transition-metal', block: 'd' },
+            { number: 43, symbol: 'Tc', name: 'Технеций', mass: '[98]', group: 7, period: 5, type: 'transition-metal', block: 'd' },
+            { number: 44, symbol: 'Ru', name: 'Рутений', mass: '101.07', group: 8, period: 5, type: 'transition-metal', block: 'd' },
+            { number: 45, symbol: 'Rh', name: 'Родий', mass: '102.91', group: 9, period: 5, type: 'transition-metal', block: 'd' },
+            { number: 46, symbol: 'Pd', name: 'Палладий', mass: '106.42', group: 10, period: 5, type: 'transition-metal', block: 'd' },
+            { number: 47, symbol: 'Ag', name: 'Серебро', mass: '107.87', group: 11, period: 5, type: 'transition-metal', block: 'd' },
+            { number: 48, symbol: 'Cd', name: 'Кадмий', mass: '112.41', group: 12, period: 5, type: 'transition-metal', block: 'd' },
+            { number: 49, symbol: 'In', name: 'Индий', mass: '114.82', group: 13, period: 5, type: 'basic-metal', block: 'p' },
+            { number: 50, symbol: 'Sn', name: 'Олово', mass: '118.71', group: 14, period: 5, type: 'basic-metal', block: 'p' },
+            { number: 51, symbol: 'Sb', name: 'Сурьма', mass: '121.76', group: 15, period: 5, type: 'metalloid', block: 'p' },
+            { number: 52, symbol: 'Te', name: 'Теллур', mass: '127.60', group: 16, period: 5, type: 'metalloid', block: 'p' },
+            { number: 53, symbol: 'I', name: 'Иод', mass: '126.90', group: 17, period: 5, type: 'halogen', block: 'p' }
+        ];
+
+        // Данные о первооткрывателях
+        const discoverers = {
+            'H': {
+                name: 'Генри Кавендиш',
+                year: '1766',
+                info: 'Английский физик и химик, который впервые выделил водород в чистом виде и описал его свойства. Кавендиш называл водород "горючим воздухом".',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Henry_Cavendish_portrait.jpg/400px-Henry_Cavendish_portrait.jpg'
+            },
+            'He': {
+                name: 'Пьер Жансен и Джозеф Норман Локьер',
+                year: '1868',
+                info: 'Гелий был впервые обнаружен как неизвестная желтая спектральная линия солнечного света во время солнечного затмения.',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Pierre_Jules_C%C3%A9sar_Janssen.jpg/400px-Pierre_Jules_C%C3%A9sar_Janssen.jpg'
+            },
+            'Li': {
+                name: 'Йохан Август Арфведсон',
+                year: '1817',
+                info: 'Шведский химик, открывший литий при анализе минерала петалита. Название происходит от греческого "литос" (камень).',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Johan_August_Arfwedson.jpg/400px-Johan_August_Arfwedson.jpg'
+            },
+            'Be': {
+                name: 'Луи Никола Воклен',
+                year: '1798',
+                info: 'Французский химик, выделивший бериллий из минерала берилла. Изначально элемент называли "глюциний".',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Louis_Nicolas_Vauquelin.jpg/400px-Louis_Nicolas_Vauquelin.jpg'
+            },
+            'Fe': {
+                name: 'Известен с древности',
+                year: 'Древность',
+                info: 'Железо известно человечеству с доисторических времен, первый металл после меди и бронзы.',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Meteorite.jpg/400px-Meteorite.jpg'
+            },
+            'Cu': {
+                name: 'Известен с древности',
+                year: 'Древность',
+                info: 'Медь один из первых металлов, освоенных человечеством.',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Native_copper.jpg/400px-Native_copper.jpg'
+            },
+            'I': {
+                name: 'Бернар Куртуа',
+                year: '1811',
+                info: 'Французский химик, открывший иод при обработке морских водорослей серной кислотой.',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Bernard_Courtois.jpg/400px-Bernard_Courtois.jpg'
+            },
+            'At': {
+                name: 'Дейл Корсон, Кеннет Маккензи, Эмилио Сегре',
+                year: '1940',
+                info: 'Американские физики, синтезировавшие астат бомбардировкой висмута альфа-частицами.',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Emilio_Segre_%281955%29.jpg/400px-Emilio_Segre_%281955%29.jpg'
+            }
+        };
+
+        // Глобальные переменные
+        let allElements = [];
+
+        // Функция для преобразования номера группы в римскую цифру
+        function toRoman(num) {
+            const romanNumerals = {
+                1: 'I', 2: 'II', 3: 'III', 4: 'IV', 
+                5: 'V', 6: 'VI', 7: 'VII', 8: 'VIII',
+                9: 'IX', 10: 'X', 11: 'XI', 12: 'XII',
+                13: 'XIII', 14: 'XIV', 15: 'XV', 16: 'XVI',
+                17: 'XVII', 18: 'XVIII'
+            };
+            return romanNumerals[num] || num;
+        }
+
+        // Функция для получения типа на русском
+        function getTypeName(type) {
+            const types = {
+                'alkali-metal': 'Щелочной металл',
+                'alkaline-earth': 'Щёлочноземельный',
+                'transition-metal': 'Переходный металл',
+                'basic-metal': 'Основной металл',
+                'metalloid': 'Полуметалл',
+                'nonmetal': 'Неметалл',
+                'halogen': 'Галоген',
+                'noble-gas': 'Благородный газ'
+            };
+            return types[type] || type;
+        }
+
+        // Функция для получения названия электронного блока
+        function getBlockName(block) {
+            const blocks = {
+                's': 's-элемент',
+                'p': 'p-элемент',
+                'd': 'd-элемент',
+                'f': 'f-элемент'
+            };
+            return blocks[block] || block;
+        }
+
+        // Функция для создания таблицы
+        function createPeriodicTable() {
+            const table = document.getElementById('periodicTable');
+            table.innerHTML = '';
+            allElements = [];
+            
+            // Заголовки групп (римские цифры)
+            table.appendChild(createGroupHeader(''));
+            for (let group = 1; group <= 18; group++) {
+                if (group <= 8) {
+                    table.appendChild(createGroupHeader(toRoman(group)));
+                } else if (group >= 13) {
+                    table.appendChild(createGroupHeader(toRoman(group - 10)));
+                } else {
+                    table.appendChild(createGroupHeader(''));
+                }
+            }
+            
+            // 4 периода
+            for (let period = 1; period <= 4; period++) {
+                table.appendChild(createPeriodLabel(period));
+                
+                for (let group = 1; group <= 18; group++) {
+                    const elementData = elementsData.find(el => 
+                        el.period === period && el.group === group
+                    );
+                    
+                    if (elementData) {
+                        const element = createElement(elementData);
+                        table.appendChild(element);
+                        allElements.push({
+                            element: element,
+                            data: elementData
+                        });
+                    } else {
+                        table.appendChild(createEmptyCell());
+                    }
+                }
+            }
+            
+            // 5-й период для оставшихся элементов
+            table.appendChild(createPeriodLabel(5));
+            for (let group = 1; group <= 18; group++) {
+                const elementData = elementsData.find(el => 
+                    el.period === 5 && el.group === group
+                );
+                
+                if (elementData) {
+                    const element = createElement(elementData);
+                    table.appendChild(element);
+                    allElements.push({
+                        element: element,
+                        data: elementData
+                    });
+                } else {
+                    table.appendChild(createEmptyCell());
+                }
+            }
+        }
+
+        function createGroupHeader(text) {
+            const header = document.createElement('div');
+            header.className = 'group-header';
+            header.textContent = text;
+            return header;
+        }
+
+        function createPeriodLabel(number) {
+            const label = document.createElement('div');
+            label.className = 'period-number';
+            label.textContent = number;
+            return label;
+        }
+
+        function createElement(data) {
+            const element = document.createElement('div');
+            element.className = `element ${data.type}`;
+            element.dataset.symbol = data.symbol;
+            element.dataset.number = data.number;
+            
+            element.innerHTML = `
+                <div class="element-number">${data.number}</div>
+                <div class="element-symbol">${data.symbol}</div>
+                <div class="element-name">${data.name}</div>
+                <div class="element-mass">${data.mass}</div>
+            `;
+            
+            element.addEventListener('click', () => showElementInfo(data));
+            return element;
+        }
+
+        function createEmptyCell() {
+            const cell = document.createElement('div');
+            cell.className = 'empty-cell';
+            return cell;
+        }
+
+        // Функция поиска элементов
+        function searchElements(query) {
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = '';
+            
+            if (!query.trim()) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+            
+            const lowerQuery = query.toLowerCase();
+            const results = elementsData.filter(element => 
+                element.symbol.toLowerCase().includes(lowerQuery) ||
+                element.name.toLowerCase().includes(lowerQuery) ||
+                element.number.toString().includes(lowerQuery)
+            ).slice(0, 10); // Ограничиваем 10 результатами
+            
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<div class="search-result-item">Элемент не найден</div>';
+                resultsDiv.style.display = 'block';
+                return;
+            }
+            
+            results.forEach(element => {
+                const item = document.createElement('div');
+                item.className = 'search-result-item';
+                item.innerHTML = `
+                    <div class="result-symbol">${element.symbol}</div>
+                    <div class="result-name">${element.name}</div>
+                    <div class="result-number">№${element.number}</div>
+                `;
+                
+                item.addEventListener('click', () => {
+                    highlightElement(element.symbol);
+                    resultsDiv.style.display = 'none';
+                    document.getElementById('searchInput').value = element.symbol;
+                });
+                
+                resultsDiv.appendChild(item);
+            });
+            
+            resultsDiv.style.display = 'block';
+        }
+
+        // Функция выделения элемента
+        function highlightElement(symbol) {
+            // Сбрасываем все выделения
+            resetHighlights();
+            
+            // Находим и выделяем нужный элемент
+            const element = document.querySelector(`.element[data-symbol="${symbol}"]`);
+            if (element) {
+                element.classList.add('highlighted');
+                
+                // Прокручиваем к элементу
+                element.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center',
+                    inline: 'center'
+                });
+                
+                // Показываем информацию об элементе
+                const elementData = elementsData.find(el => el.symbol === symbol);
+                if (elementData) {
+                    setTimeout(() => showElementInfo(elementData), 500);
+                }
+            }
+        }
+
+        // Функция выделения всех элементов определенного типа
+        function highlightAll(type) {
+            resetHighlights();
+            const elements = document.querySelectorAll(`.element.${type}`);
+            elements.forEach(el => {
+                el.classList.add('highlighted');
+            });
+        }
+
+        // Функция сброса выделения
+        function resetHighlights() {
+            document.querySelectorAll('.element.highlighted').forEach(el => {
+                el.classList.remove('highlighted');
+            });
+        }
+
+        // Функция показа информации об элементе
+        function showElementInfo(data) {
+            const discoverer = discoverers[data.symbol] || {
+                name: 'Дмитрий Иванович Менделеев',
+                year: 'Предсказан в 1869',
+                info: 'Элемент был предсказан Д.И. Менделеевым на основе его Периодического закона.',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Dmitri_Mendeleev_na.jpg/400px-Dmitri_Mendeleev_na.jpg'
+            };
+            
+            document.getElementById('modalSymbol').textContent = data.symbol;
+            document.getElementById('modalName').textContent = data.name;
+            document.getElementById('modalNumber').textContent = data.number;
+            document.getElementById('modalMass').textContent = data.mass;
+            document.getElementById('modalGroup').textContent = toRoman(data.group);
+            document.getElementById('modalPeriod').textContent = data.period;
+            document.getElementById('modalType').textContent = getTypeName(data.type);
+            document.getElementById('modalBlock').textContent = getBlockName(data.block);
+            document.getElementById('discovererName').textContent = discoverer.name;
+            document.getElementById('discoveryYear').textContent = `Год открытия: ${discoverer.year}`;
+            document.getElementById('discoveryInfo').textContent = discoverer.info;
+            document.getElementById('discovererImage').src = discoverer.image;
+            
+            document.getElementById('elementModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('elementModal').style.display = 'none';
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            createPeriodicTable();
+            
+            // Настройка поиска
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            
+            searchInput.addEventListener('input', (e) => {
+                searchElements(e.target.value);
+            });
+            
+            // Закрытие результатов поиска при клике вне
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.style.display = 'none';
+                }
+            });
+            
+            // Закрытие модального окна
+            window.addEventListener('click', (event) => {
+                const modal = document.getElementById('elementModal');
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // Анимация появления элементов
+            setTimeout(() => {
+                const elements = document.querySelectorAll('.element');
+                elements.forEach((el, index) => {
+                    setTimeout(() => {
+                        el.style.opacity = '1';
+                        el.style.transform = 'scale(1)';
+                    }, index * 15);
+                });
+            }, 300);
+        });
+
+        // Начальная анимация
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.element').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'scale(0.8)';
+                el.style.transition = 'opacity 0.5s, transform 0.5s';
+            });
+        });
+    </script>
+</body>
+</html>

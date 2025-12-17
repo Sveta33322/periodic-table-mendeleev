@@ -1,0 +1,570 @@
+/* Основные стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    color: #fff;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Шапка */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header h1 {
+    font-size: 2.2rem;
+    color: #4cc9f0;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: #a0e7ff;
+    opacity: 0.9;
+}
+
+/* Управление */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.btn {
+    background: linear-gradient(135deg, #4cc9f0, #4361ee);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 201, 240, 0.4);
+}
+
+.counter {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/* Таблица */
+.table-wrapper {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    overflow-x: auto;
+    position: relative;
+}
+
+.periodic-table {
+    display: grid;
+    grid-template-columns: repeat(18, 1fr);
+    gap: 8px;
+    min-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Элемент таблицы */
+.element {
+    aspect-ratio: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.element:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.element-symbol {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.element-number {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+}
+
+.element-name {
+    font-size: 0.7rem;
+    text-align: center;
+    margin-top: 5px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+}
+
+/* Цвета элементов */
+.alkali-metal {
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    border-color: #ff9a9e;
+}
+
+.alkaline-earth-metal {
+    background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+    border-color: #a1c4fd;
+}
+
+.transition-metal {
+    background: linear-gradient(135deg, #84fab0, #8fd3f4);
+    border-color: #84fab0;
+}
+
+.post-transition-metal {
+    background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+    border-color: #fbc2eb;
+}
+
+.metalloid {
+    background: linear-gradient(135deg, #d4fc79, #96e6a1);
+    border-color: #d4fc79;
+}
+
+.nonmetal {
+    background: linear-gradient(135deg, #ff9966, #ff5e62);
+    border-color: #ff9966;
+}
+
+.halogen {
+    background: linear-gradient(135deg, #fdcbf1, #e6dee9);
+    border-color: #fdcbf1;
+}
+
+.noble-gas {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    border-color: #f093fb;
+}
+
+/* Группы и периоды */
+.group-label {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffdd59;
+    padding: 10px;
+    background: rgba(0, 40, 85, 0.8);
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.period-label {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00cec9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 60, 40, 0.7);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+/* Легенда */
+.legend {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 25px;
+    border-radius: 15px;
+    margin-top: 30px;
+    animation: fadeIn 0.5s ease;
+}
+
+.legend h3 {
+    color: #4cc9f0;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.legend-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.legend-color {
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
+    border: 2px solid white;
+}
+
+/* Модальные окна */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    width: 90%;
+    max-width: 800px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.4s ease;
+}
+
+.modal-header {
+    background: rgba(0, 20, 40, 0.9);
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #4cc9f0;
+}
+
+.modal-header h2 {
+    color: #4cc9f0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.modal-symbol {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #ffdd59;
+    margin-right: 20px;
+}
+
+.modal-name {
+    font-size: 2rem;
+    color: white;
+}
+
+.close-btn {
+    background: #ff4757;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: #ff3742;
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.element-info {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.element-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 25px;
+    border-radius: 10px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-label {
+    color: #a0e7ff;
+    font-weight: 500;
+}
+
+.detail-value {
+    color: #ffdd59;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.discoverer-info h3 {
+    color: #4cc9f0;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.discoverer-content {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.discoverer-photo {
+    flex: 0 0 200px;
+}
+
+.discoverer-photo img {
+    width: 100%;
+    border-radius: 10px;
+    border: 3px solid #4cc9f0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.discoverer-details {
+    flex: 1;
+}
+
+.discoverer-details h4 {
+    font-size: 1.8rem;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.discovery-year {
+    background: rgba(255, 221, 89, 0.1);
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffdd59;
+    font-weight: bold;
+}
+
+.discovery-text {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #e0f7ff;
+}
+
+/* Информационное модальное окно */
+.info-modal .modal-body {
+    padding: 30px;
+}
+
+.info-content h3 {
+    color: #4cc9f0;
+    margin: 25px 0 15px;
+}
+
+.info-content ul, .info-content ol {
+    padding-left: 25px;
+    margin-bottom: 20px;
+}
+
+.info-content li {
+    margin-bottom: 10px;
+    color: #e0f7ff;
+}
+
+.github-link {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.2rem;
+}
+
+.github-link a {
+    color: #4cc9f0;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.github-link a:hover {
+    text-decoration: underline;
+}
+
+/* Футер */
+.footer {
+    text-align: center;
+    margin-top: 50px;
+    padding: 25px;
+    color: #88aadd;
+    border-top: 1px solid rgba(136, 170, 221, 0.3);
+}
+
+.footer i {
+    color: #ff4757;
+    margin: 0 5px;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .periodic-table {
+        min-width: 1000px;
+        grid-template-columns: repeat(18, 1fr);
+        gap: 6px;
+    }
+    
+    .element-symbol {
+        font-size: 1.3rem;
+    }
+    
+    .element-name {
+        font-size: 0.6rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 1.8rem;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn {
+        justify-content: center;
+    }
+    
+    .discoverer-content {
+        flex-direction: column;
+    }
+    
+    .discoverer-photo {
+        flex: none;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    
+    .element-details {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .header {
+        padding: 15px;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .modal-content {
+        width: 95%;
+    }
+    
+    .modal-header {
+        padding: 15px;
+    }
+    
+    .modal-symbol {
+        font-size: 2rem;
+    }
+    
+    .modal-name {
+        font-size: 1.5rem;
+    }
+}
